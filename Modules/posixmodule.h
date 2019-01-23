@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 #ifndef Py_LIMITED_API
-#ifndef MS_WINDOWS
+#if !(defined(MS_WINDOWS) || defined(__REACTOS__))
 PyAPI_FUNC(PyObject *) _PyLong_FromUid(uid_t);
 PyAPI_FUNC(PyObject *) _PyLong_FromGid(gid_t);
 PyAPI_FUNC(int) _Py_Uid_Converter(PyObject *, void *);

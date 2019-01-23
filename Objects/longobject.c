@@ -1729,7 +1729,7 @@ long_to_decimal_string_internal(PyObject *aa,
         writer->pos += strlen;
     }
     else {
-        assert(_PyUnicode_CheckConsistency(str, 1));
+        //assert(_PyUnicode_CheckConsistency(str, 1)); //disable for ReactOS
         *p_output = (PyObject *)str;
     }
     return 0;

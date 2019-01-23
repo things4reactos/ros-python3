@@ -2239,7 +2239,7 @@ static PyObject *
 objargs_mktuple(va_list va)
 {
     int i, n = 0;
-    va_list countva;
+    va_list countva = NULL;
     PyObject *result, *tmp;
 
         Py_VA_COPY(countva, va);

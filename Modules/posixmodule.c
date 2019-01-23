@@ -25,10 +25,24 @@
 #define PY_SSIZE_T_CLEAN
 
 #include "Python.h"
-#ifndef MS_WINDOWS
+#if !(defined(MS_WINDOWS)  || defined(__REACTOS__))
 #include "posixmodule.h"
 #endif
 
+//ReactOS specific defs---------------------------
+/*
+#include <windef.h>
+#include <winbase.h>
+#include <wincon.h>
+#include <winioctl.h>
+#include <winuser.h>
+#include <dirent.h>
+#include "osdefs.h"
+
+//typedef _mode_t mode_t;
+#define VOLUME_NAME_DOS 0x0
+#define VOLUME_NAME_NT 0x2
+*/
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -122,7 +136,7 @@ corresponding Unix manual entries for more information on calls.");
 #include <sys/sysctl.h>
 #endif
 
-#if defined(MS_WINDOWS)
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 #  define TERMSIZE_USE_CONIO
 #elif defined(HAVE_SYS_IOCTL_H)
 #  include <sys/ioctl.h>
@@ -148,7 +162,7 @@ corresponding Unix manual entries for more information on calls.");
 #define HAVE_SYSTEM     1
 #define HAVE_WAIT       1
 #else
-#ifdef _MSC_VER         /* Microsoft compiler */
+#if defined (_MSC_VER)         /* Microsoft compiler */
 #define HAVE_GETPPID    1
 #define HAVE_GETLOGIN   1
 #define HAVE_SPAWNV     1
@@ -161,21 +175,25 @@ corresponding Unix manual entries for more information on calls.");
 #else
 /* Unix functions that the configure script doesn't check for */
 #define HAVE_EXECV      1
-#define HAVE_FORK       1
 #if defined(__USLC__) && defined(__SCO_VERSION__)       /* SCO UDK Compiler */
 #define HAVE_FORK1      1
 #endif
+#if !defined(__REACTOS__)
 #define HAVE_GETEGID    1
 #define HAVE_GETEUID    1
 #define HAVE_GETGID     1
 #define HAVE_GETPPID    1
 #define HAVE_GETUID     1
+#define HAVE_FORK       1
 #define HAVE_KILL       1
-#define HAVE_OPENDIR    1
-#define HAVE_PIPE       1
-#define HAVE_SYSTEM     1
 #define HAVE_WAIT       1
 #define HAVE_TTYNAME    1
+#define HAVE_OPENDIR    1
+#endif
+
+#define HAVE_PIPE       1
+#define HAVE_SYSTEM     1
+
 #endif  /* _MSC_VER */
 #endif  /* __BORLANDC__ */
 #endif  /* ! __WATCOMC__ || __QNX__ */
@@ -201,7 +219,11 @@ extern int mkdir(char *);
 #if ( defined(__WATCOMC__) || defined(_MSC_VER) ) && !defined(__QNX__)
 extern int mkdir(const char *);
 #else
+#ifdef __REACTOS__
+extern int mkdir(const char *);
+#else
 extern int mkdir(const char *, mode_t);
+#endif
 #endif
 #endif
 #if defined(__IBMC__) || defined(__IBMCPP__)
@@ -282,7 +304,7 @@ extern int lstat(const char *, struct stat *);
 #endif
 #endif
 
-#ifdef _MSC_VER
+#if defined (_MSC_VER) || defined(__REACTOS__)
 #ifdef HAVE_DIRECT_H
 #include <direct.h>
 #endif
@@ -353,7 +375,7 @@ static int win32_can_symlink = 0;
 #undef STAT
 #undef FSTAT
 #undef STRUCT_STAT
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined (__REACTOS__)
 #       define STAT win32_stat
 #       define LSTAT win32_lstat
 #       define FSTAT win32_fstat
@@ -390,8 +412,9 @@ win32_warn_bytes_api()
 }
 #endif
 
-
+#ifndef __REACTOS__
 #ifndef MS_WINDOWS
+
 PyObject *
 _PyLong_FromUid(uid_t uid)
 {
@@ -621,7 +644,7 @@ fail:
     return 0;
 }
 #endif /* MS_WINDOWS */
-
+#endif /* REACTOS */
 
 #ifdef HAVE_LONG_LONG
 #  define _PyLong_FromDev PyLong_FromLongLong
@@ -845,7 +868,7 @@ path_converter(PyObject *o, void *p) {
 
     unicode = PyUnicode_FromObject(o);
     if (unicode) {
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined (__REACTOS__)
         wchar_t *wide;
 
         wide = PyUnicode_AsUnicodeAndSize(unicode, &length);
@@ -903,7 +926,7 @@ path_converter(PyObject *o, void *p) {
         return 0;
     }
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (win32_warn_bytes_api()) {
         Py_DECREF(bytes);
         return 0;
@@ -911,7 +934,7 @@ path_converter(PyObject *o, void *p) {
 #endif
 
     length = PyBytes_GET_SIZE(bytes);
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (length > MAX_PATH-1) {
         FORMAT_EXCEPTION(PyExc_ValueError, "%s too long for Windows");
         Py_DECREF(bytes);
@@ -1023,6 +1046,7 @@ dir_fd_and_follow_symlinks_invalid(char *function_name, int dir_fd,
 }
 
 /* A helper used by a number of POSIX-only functions */
+#ifndef __REACTOS__
 #ifndef MS_WINDOWS
 static int
 _parse_off_t(PyObject* arg, void* addr)
@@ -1036,6 +1060,7 @@ _parse_off_t(PyObject* arg, void* addr)
         return 0;
     return 1;
 }
+#endif
 #endif
 
 #if defined _MSC_VER && _MSC_VER >= 1400
@@ -1131,7 +1156,7 @@ _PyVerify_fd_dup2(int fd1, int fd2)
 #define _PyVerify_fd_dup2(A, B) (1)
 #endif
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 /* The following structure was copied from
    http://msdn.microsoft.com/en-us/library/ms791514.aspx as the required
    include doesn't seem to be present in the Windows SDK (at least as included
@@ -1208,7 +1233,7 @@ static PyObject *
 convertenviron(void)
 {
     PyObject *d;
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     wchar_t **e;
 #else
     char **e;
@@ -1221,7 +1246,7 @@ convertenviron(void)
     if (environ == NULL)
         environ = *_NSGetEnviron();
 #endif
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     /* _wenviron must be initialized in this way if the program is started
        through main() instead of wmain(). */
     _wgetenv(L"");
@@ -1292,7 +1317,7 @@ posix_error(void)
     return PyErr_SetFromErrno(PyExc_OSError);
 }
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 static PyObject *
 win32_error(char* function, const char* filename)
 {
@@ -1327,7 +1352,7 @@ win32_error_object(char* function, PyObject* filename)
 static PyObject *
 path_error(path_t *path)
 {
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError,
                                                         0, path->object);
 #else
@@ -1339,7 +1364,7 @@ path_error(path_t *path)
 static PyObject *
 path_error2(path_t *path, path_t *path2)
 {
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined (__REACTOS__)
     return PyErr_SetExcFromWindowsErrWithFilenameObjects(PyExc_OSError,
             0, path->object, path2->object);
 #else
@@ -1395,7 +1420,7 @@ posix_1str(const char *func_name, PyObject *args, char *format,
 }
 
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 /* This is a reimplementation of the C library's chdir function,
    but one that produces Win32 errors instead of DOS error codes.
    chdir is essentially a wrapper around SetCurrentDirectory; however,
@@ -1429,16 +1454,17 @@ win32_chdir(LPCSTR path)
 static BOOL __stdcall
 win32_wchdir(LPCWSTR path)
 {
-    wchar_t _new_path[MAX_PATH], *new_path = _new_path;
+    wchar_t _new_path[MAX_PATH]; 
+    wchar_t *new_path = _new_path;
     int result;
     wchar_t env[4] = L"=x:";
 
     if(!SetCurrentDirectoryW(path))
         return FALSE;
-    result = GetCurrentDirectoryW(Py_ARRAY_LENGTH(new_path), new_path);
+    result = GetCurrentDirectoryW(Py_ARRAY_LENGTH(_new_path), new_path);
     if (!result)
         return FALSE;
-    if (result > Py_ARRAY_LENGTH(new_path)) {
+    if (result > Py_ARRAY_LENGTH(_new_path)) {
         new_path = PyMem_RawMalloc(result * sizeof(wchar_t));
         if (!new_path) {
             SetLastError(ERROR_OUTOFMEMORY);
@@ -1462,7 +1488,7 @@ win32_wchdir(LPCWSTR path)
 }
 #endif
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 /* The CRT of Windows has a number of flaws wrt. its stat() implementation:
    - time stamps are restricted to second resolution
    - file modification times suffer from forth-and-back conversions between
@@ -2239,13 +2265,13 @@ _pystat_fromstructstat(STRUCT_STAT *st)
 #else
     PyStructSequence_SET_ITEM(v, 1, PyLong_FromLong((long)st->st_ino));
 #endif
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     PyStructSequence_SET_ITEM(v, 2, PyLong_FromUnsignedLong(st->st_dev));
 #else
     PyStructSequence_SET_ITEM(v, 2, _PyLong_FromDev(st->st_dev));
 #endif
     PyStructSequence_SET_ITEM(v, 3, PyLong_FromLong((long)st->st_nlink));
-#if defined(MS_WINDOWS)
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     PyStructSequence_SET_ITEM(v, 4, PyLong_FromLong(0));
     PyStructSequence_SET_ITEM(v, 5, PyLong_FromLong(0));
 #else
@@ -2336,7 +2362,7 @@ posix_do_stat(char *function_name, path_t *path,
     STRUCT_STAT st;
     int result;
 
-#if !defined(MS_WINDOWS) && !defined(HAVE_FSTATAT) && !defined(HAVE_LSTAT)
+#if !defined(__REACTOS__) && !defined(MS_WINDOWS) && !defined(HAVE_FSTATAT) && !defined(HAVE_LSTAT)
     if (follow_symlinks_specified(function_name, follow_symlinks))
         return NULL;
 #endif
@@ -2350,7 +2376,7 @@ posix_do_stat(char *function_name, path_t *path,
     if (path->fd != -1)
         result = FSTAT(path->fd, &st);
     else
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (path->wide) {
         if (follow_symlinks)
             result = win32_stat_w(path->wide, &st);
@@ -2359,7 +2385,7 @@ posix_do_stat(char *function_name, path_t *path,
     }
     else
 #endif
-#if defined(HAVE_LSTAT) || defined(MS_WINDOWS)
+#if defined(HAVE_LSTAT) || defined(MS_WINDOWS) || defined(__REACTOS__)
     if ((!follow_symlinks) && (dir_fd == DEFAULT_DIR_FD))
         result = LSTAT(path->narrow, &st);
     else
@@ -2668,7 +2694,7 @@ os_access_impl(PyModuleDef *module, path_t *path, int mode, int dir_fd, int effe
 {
     PyObject *return_value = NULL;
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     DWORD attr;
 #else
     int result;
@@ -2684,7 +2710,7 @@ os_access_impl(PyModuleDef *module, path_t *path, int mode, int dir_fd, int effe
     }
 #endif
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     Py_BEGIN_ALLOW_THREADS
     if (path->wide != NULL)
         attr = GetFileAttributesW(path->wide);
@@ -2858,7 +2884,7 @@ posix_chdir(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (path.wide)
         result = win32_wchdir(path.wide);
     else
@@ -2930,7 +2956,7 @@ posix_chmod(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"path", "mode", "dir_fd",
                                "follow_symlinks", NULL};
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     DWORD attr;
 #endif
 
@@ -2959,7 +2985,7 @@ posix_chmod(PyObject *self, PyObject *args, PyObject *kwargs)
         goto exit;
 #endif
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     Py_BEGIN_ALLOW_THREADS
     if (path.wide)
         attr = GetFileAttributesW(path.wide);
@@ -3416,7 +3442,7 @@ posix_getcwd(int use_bytes)
     char buf[1026];
     char *res;
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (!use_bytes) {
         wchar_t wbuf[1026];
         wchar_t *wbuf2 = wbuf;
@@ -3482,11 +3508,9 @@ posix_getcwd_bytes(PyObject *self)
     return posix_getcwd(1);
 }
 
-#if ((!defined(HAVE_LINK)) && defined(MS_WINDOWS))
+#if (!defined(HAVE_LINK)) && (defined(MS_WINDOWS) || defined(__REACTOS__))
 #define HAVE_LINK 1
-#endif
 
-#ifdef HAVE_LINK
 PyDoc_STRVAR(posix_link__doc__,
 "link(src, dst, *, src_dir_fd=None, dst_dir_fd=None, follow_symlinks=True)\n\n\
 Create a hard link to a file.\n\
@@ -3511,7 +3535,7 @@ posix_link(PyObject *self, PyObject *args, PyObject *kwargs)
     PyObject *return_value = NULL;
     static char *keywords[] = {"src", "dst", "src_dir_fd", "dst_dir_fd",
                                "follow_symlinks", NULL};
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     BOOL result;
 #else
     int result;
@@ -3542,7 +3566,7 @@ posix_link(PyObject *self, PyObject *args, PyObject *kwargs)
         goto exit;
     }
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     Py_BEGIN_ALLOW_THREADS
     if (src.wide)
         result = CreateHardLinkW(dst.wide, src.wide, NULL);
@@ -3598,8 +3622,7 @@ path can be specified as either str or bytes.  If path is bytes,\n\
 On some platforms, path may also be specified as an open file descriptor;\n\
   the file descriptor must refer to a directory.\n\
   If this functionality is unavailable, using it raises NotImplementedError.");
-
-#if defined(MS_WINDOWS) && !defined(HAVE_OPENDIR)
+#if (defined(MS_WINDOWS) || defined(__REACTOS__)) && !defined(HAVE_OPENDIR)
 static PyObject *
 _listdir_windows_no_opendir(path_t *path, PyObject *list)
 {
@@ -3883,7 +3906,7 @@ posix_listdir(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
     }
 
-#if defined(MS_WINDOWS) && !defined(HAVE_OPENDIR)
+#if (defined(MS_WINDOWS) || defined(__REACTOS__)) && !defined(HAVE_OPENDIR)
     return_value = _listdir_windows_no_opendir(&path, list);
 #else
     return_value = _posix_listdir(&path, list);
@@ -3892,7 +3915,7 @@ posix_listdir(PyObject *self, PyObject *args, PyObject *kwargs)
     return return_value;
 }
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 /* A helper function for abspath on win32 */
 static PyObject *
 posix__getfullpathname(PyObject *self, PyObject *args)
@@ -4138,7 +4161,7 @@ posix_mkdir(PyObject *self, PyObject *args, PyObject *kwargs)
         ))
         return NULL;
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     Py_BEGIN_ALLOW_THREADS
     if (path.wide)
         result = CreateDirectoryW(path.wide, NULL);
@@ -4273,7 +4296,7 @@ internal_rename(PyObject *args, PyObject *kwargs, int is_replace)
     char format[24];
     static char *keywords[] = {"src", "dst", "src_dir_fd", "dst_dir_fd", NULL};
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     BOOL result;
     int flags = is_replace ? MOVEFILE_REPLACE_EXISTING : 0;
 #else
@@ -4308,7 +4331,7 @@ internal_rename(PyObject *args, PyObject *kwargs, int is_replace)
         goto exit;
     }
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     Py_BEGIN_ALLOW_THREADS
     if (src.wide)
         result = MoveFileExW(src.wide, dst.wide, flags);
@@ -4408,7 +4431,7 @@ posix_rmdir(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (path.wide)
         result = RemoveDirectoryW(path.wide);
     else
@@ -4447,7 +4470,7 @@ static PyObject *
 posix_system(PyObject *self, PyObject *args)
 {
     long sts;
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     wchar_t *command;
     if (!PyArg_ParseTuple(args, "u:system", &command))
         return NULL;
@@ -4489,7 +4512,7 @@ posix_umask(PyObject *self, PyObject *args)
     return PyLong_FromLong((long)i);
 }
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 
 /* override the default DeleteFileW behavior so that directory
 symlinks can be removed with this function, the same as with
@@ -4565,7 +4588,7 @@ posix_unlink(PyObject *self, PyObject *args, PyObject *kwargs)
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (path.wide)
         result = Py_DeleteFileW(path.wide);
     else
@@ -4819,6 +4842,7 @@ utime_nofollow_symlinks(utime_t *ut, char *path)
 
 #endif
 
+#ifndef __REACTOS__
 #ifndef MS_WINDOWS
 
 static int
@@ -4839,6 +4863,7 @@ utime_default(utime_t *ut, char *path)
 #endif
 }
 
+#endif
 #endif
 
 static int
@@ -4875,7 +4900,7 @@ posix_utime(PyObject *self, PyObject *args, PyObject *kwargs)
 
     utime_t utime;
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     HANDLE hFile;
     FILETIME atime, mtime;
 #else
@@ -4969,7 +4994,7 @@ posix_utime(PyObject *self, PyObject *args, PyObject *kwargs)
     }
 #endif
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     Py_BEGIN_ALLOW_THREADS
     if (path.wide)
         hFile = CreateFileW(path.wide, FILE_WRITE_ATTRIBUTES, 0,
@@ -5039,7 +5064,7 @@ posix_utime(PyObject *self, PyObject *args, PyObject *kwargs)
 
 exit:
     path_cleanup(&path);
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (hFile != INVALID_HANDLE_VALUE)
         CloseHandle(hFile);
 #endif
@@ -6457,7 +6482,7 @@ posix_setpgrp(PyObject *self, PyObject *noargs)
 
 #ifdef HAVE_GETPPID
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 #include <tlhelp32.h>
 
 static PyObject*
@@ -6508,7 +6533,7 @@ of the 'init' process (1).");
 static PyObject *
 posix_getppid(PyObject *self, PyObject *noargs)
 {
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     return win32_getppid();
 #else
     return PyLong_FromPid(getppid());
@@ -6526,7 +6551,7 @@ static PyObject *
 posix_getlogin(PyObject *self, PyObject *noargs)
 {
     PyObject *result = NULL;
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     wchar_t user_name[UNLEN + 1];
     DWORD num_chars = Py_ARRAY_LENGTH(user_name);
 
@@ -6611,7 +6636,7 @@ posix_killpg(PyObject *self, PyObject *args)
 }
 #endif
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 PyDoc_STRVAR(win32_kill__doc__,
 "kill(pid, sig)\n\n\
 Kill a process with a signal.");
@@ -7082,7 +7107,7 @@ posix_wait(PyObject *self, PyObject *noargs)
 #endif
 
 
-#if defined(HAVE_READLINK) || defined(MS_WINDOWS)
+#if defined(HAVE_READLINK) || defined(MS_WINDOWS) || defined(__REACTOS__)
 PyDoc_STRVAR(readlink__doc__,
 "readlink(path, *, dir_fd=None) -> path\n\n\
 Return a string representing the path to which the symbolic link points.\n\
@@ -7158,7 +7183,7 @@ If dir_fd is not None, it should be a file descriptor open to a directory,\n\
 dir_fd may not be implemented on your platform.\n\
   If it is unavailable, using it will raise a NotImplementedError.");
 
-#if defined(MS_WINDOWS)
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 
 /* Grab CreateSymbolicLinkW dynamically from kernel32 */
 static DWORD (CALLBACK *Py_CreateSymbolicLinkW)(LPWSTR, LPWSTR, DWORD) = NULL;
@@ -7315,7 +7340,7 @@ posix_symlink(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"src", "dst", "target_is_directory",
                                "dir_fd", NULL};
     PyObject *return_value;
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     DWORD result;
 #else
     int result;
@@ -7328,7 +7353,7 @@ posix_symlink(PyObject *self, PyObject *args, PyObject *kwargs)
     dst.function_name = "symlink";
     dst.argument_name = "dst";
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (!check_CreateSymbolicLink()) {
         PyErr_SetString(PyExc_NotImplementedError,
             "CreateSymbolicLink functions not found");
@@ -7360,7 +7385,7 @@ posix_symlink(PyObject *self, PyObject *args, PyObject *kwargs)
         goto exit;
     }
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 
     Py_BEGIN_ALLOW_THREADS
     if (dst.wide) {
@@ -7411,7 +7436,7 @@ exit:
 #endif /* HAVE_SYMLINK */
 
 
-#if !defined(HAVE_READLINK) && defined(MS_WINDOWS)
+#if !defined(HAVE_READLINK) && (defined(MS_WINDOWS) || defined(__REACTOS__))
 
 static PyObject *
 win_readlink(PyObject *self, PyObject *args, PyObject *kwargs)
@@ -7514,7 +7539,7 @@ static PyStructSequence_Desc times_result_desc = {
 
 static PyTypeObject TimesResultType;
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 #define HAVE_TIMES  /* mandatory, for the method table */
 #endif
 
@@ -7556,7 +7581,7 @@ Return an object containing floating point numbers indicating process\n\
 times.  The object behaves like a named tuple with these fields:\n\
   (utime, stime, cutime, cstime, elapsed_time)");
 
-#if defined(MS_WINDOWS)
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 static PyObject *
 posix_times(PyObject *self, PyObject *noargs)
 {
@@ -7723,7 +7748,7 @@ posix_open(PyObject *self, PyObject *args, PyObject *kwargs)
     static char *keywords[] = {"path", "flags", "mode", "dir_fd", NULL};
 #ifdef O_CLOEXEC
     int *atomic_flag_works = &_Py_open_cloexec_works;
-#elif !defined(MS_WINDOWS)
+#elif !(defined(MS_WINDOWS) || defined(__REACTOS__))
     int *atomic_flag_works = NULL;
 #endif
 
@@ -7740,14 +7765,14 @@ posix_open(PyObject *self, PyObject *args, PyObject *kwargs)
         ))
         return NULL;
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     flags |= O_NOINHERIT;
 #elif defined(O_CLOEXEC)
     flags |= O_CLOEXEC;
 #endif
 
     Py_BEGIN_ALLOW_THREADS
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (path.wide)
         fd = _wopen(path.wide, flags, mode);
     else
@@ -7765,7 +7790,7 @@ posix_open(PyObject *self, PyObject *args, PyObject *kwargs)
         goto exit;
     }
 
-#ifndef MS_WINDOWS
+#if ! (defined(MS_WINDOWS) || defined(__REACTOS__))
     if (_Py_set_inheritable(fd, 0, atomic_flag_works) < 0) {
         close(fd);
         goto exit;
@@ -7868,7 +7893,7 @@ posix_dup2(PyObject *self, PyObject *args, PyObject *kwargs)
     if (!_PyVerify_fd_dup2(fd, fd2))
         return posix_error();
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     Py_BEGIN_ALLOW_THREADS
     res = dup2(fd, fd2);
     Py_END_ALLOW_THREADS
@@ -7968,7 +7993,7 @@ static PyObject *
 posix_lseek(PyObject *self, PyObject *args)
 {
     int fd, how;
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     PY_LONG_LONG pos, res;
 #else
     off_t pos, res;
@@ -7996,7 +8021,7 @@ posix_lseek(PyObject *self, PyObject *args)
     if (!_PyVerify_fd(fd))
         return posix_error();
     Py_BEGIN_ALLOW_THREADS
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     res = _lseeki64(fd, pos, how);
 #else
     res = lseek(fd, pos, how);
@@ -8208,7 +8233,7 @@ posix_write(PyObject *self, PyObject *args)
     }
     len = pbuf.len;
     Py_BEGIN_ALLOW_THREADS
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     if (len > INT_MAX)
         len = INT_MAX;
     size = write(fd, pbuf.buf, (int)len);
@@ -8379,7 +8404,7 @@ posix_fstat(PyObject *self, PyObject *args)
     res = FSTAT(fd, &st);
     Py_END_ALLOW_THREADS
     if (res != 0) {
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
         return PyErr_SetFromWindowsErr(0);
 #else
         return posix_error();
@@ -8414,7 +8439,7 @@ static PyObject *
 posix_pipe(PyObject *self, PyObject *noargs)
 {
     int fds[2];
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     HANDLE read, write;
     SECURITY_ATTRIBUTES attr;
     BOOL ok;
@@ -8422,7 +8447,7 @@ posix_pipe(PyObject *self, PyObject *noargs)
     int res;
 #endif
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     attr.nLength = sizeof(attr);
     attr.lpSecurityDescriptor = NULL;
     attr.bInheritHandle = FALSE;
@@ -8886,7 +8911,7 @@ static PyObject *
 posix_putenv(PyObject *self, PyObject *args)
 {
     PyObject *newstr = NULL;
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     PyObject *os1, *os2;
     wchar_t *newenv;
 
@@ -8952,14 +8977,14 @@ posix_putenv(PyObject *self, PyObject *args)
         Py_DECREF(newstr);
     }
 
-#ifndef MS_WINDOWS
+#if !(defined(MS_WINDOWS)  || defined(__REACTOS__))
     Py_DECREF(os1);
     Py_DECREF(os2);
 #endif
     Py_RETURN_NONE;
 
 error:
-#ifndef MS_WINDOWS
+#if !(defined(MS_WINDOWS) || defined(__REACTOS__))
     Py_DECREF(os1);
     Py_DECREF(os2);
 #endif
@@ -10396,7 +10421,7 @@ posix_abort(PyObject *self, PyObject *noargs)
     return NULL;
 }
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 PyDoc_STRVAR(win32_startfile__doc__,
 "startfile(filepath [, operation]) - Start a file with its associated\n\
 application.\n\
@@ -11055,7 +11080,7 @@ static PyObject *
 posix_cpu_count(PyObject *self)
 {
     int ncpu = 0;
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
     ncpu = sysinfo.dwNumberOfProcessors;
@@ -11126,7 +11151,7 @@ posix_set_inheritable(PyObject *self, PyObject *args)
 }
 
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 PyDoc_STRVAR(get_handle_inheritable__doc__,
     "get_handle_inheritable(fd) -> bool\n" \
     "\n" \
@@ -11235,7 +11260,7 @@ static PyMethodDef posix_methods[] = {
     METH_NOARGS, posix_getcwd__doc__},
     {"getcwdb",         (PyCFunction)posix_getcwd_bytes,
     METH_NOARGS, posix_getcwdb__doc__},
-#if defined(HAVE_LINK) || defined(MS_WINDOWS)
+#if defined(HAVE_LINK) || defined(MS_WINDOWS) || defined(__REACTOS__)
     {"link",            (PyCFunction)posix_link,
                         METH_VARARGS | METH_KEYWORDS,
                         posix_link__doc__},
@@ -11263,7 +11288,7 @@ static PyMethodDef posix_methods[] = {
                         METH_VARARGS | METH_KEYWORDS,
                         readlink__doc__},
 #endif /* HAVE_READLINK */
-#if !defined(HAVE_READLINK) && defined(MS_WINDOWS)
+#if !defined(HAVE_READLINK) && (defined(MS_WINDOWS) || defined(__REACTOS__))
     {"readlink",        (PyCFunction)win_readlink,
                         METH_VARARGS | METH_KEYWORDS,
                         readlink__doc__},
@@ -11387,7 +11412,7 @@ static PyMethodDef posix_methods[] = {
 #ifdef HAVE_PLOCK
     {"plock",           posix_plock, METH_VARARGS, posix_plock__doc__},
 #endif /* HAVE_PLOCK */
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     {"startfile",       win32_startfile, METH_VARARGS, win32_startfile__doc__},
     {"kill",    win32_kill, METH_VARARGS, win32_kill__doc__},
 #endif
@@ -11587,7 +11612,7 @@ static PyMethodDef posix_methods[] = {
                         posix_pathconf__doc__},
 #endif
     {"abort",           posix_abort, METH_NOARGS, posix_abort__doc__},
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     {"_getfullpathname",        posix__getfullpathname, METH_VARARGS, NULL},
     {"_getfinalpathname",       posix__getfinalpathname, METH_VARARGS, NULL},
     {"_isdir",                  posix__isdir, METH_VARARGS, posix__isdir__doc__},
@@ -11632,7 +11657,7 @@ static PyMethodDef posix_methods[] = {
                   METH_NOARGS, posix_cpu_count__doc__},
     {"get_inheritable", posix_get_inheritable, METH_VARARGS, get_inheritable__doc__},
     {"set_inheritable", posix_set_inheritable, METH_VARARGS, set_inheritable__doc__},
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     {"get_handle_inheritable", posix_get_handle_inheritable,
      METH_VARARGS, get_handle_inheritable__doc__},
     {"set_handle_inheritable", posix_set_handle_inheritable,
@@ -11642,7 +11667,7 @@ static PyMethodDef posix_methods[] = {
 };
 
 
-#if defined(HAVE_SYMLINK) && defined(MS_WINDOWS)
+#if defined(HAVE_SYMLINK) && (defined(MS_WINDOWS) || defined(__REACTOS__))
 static int
 enable_symlink()
 {
@@ -12080,7 +12105,7 @@ all_ins(PyObject *m)
 }
 
 
-#if (defined(_MSC_VER) || defined(__WATCOMC__) || defined(__BORLANDC__)) && !defined(__QNX__)
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
 #define INITFUNC PyInit_nt
 #define MODNAME "nt"
 
@@ -12224,7 +12249,7 @@ static char *have_functions[] = {
     "HAVE_UTIMENSAT",
 #endif
 
-#ifdef MS_WINDOWS
+#if defined(MS_WINDOWS) || defined(__REACTOS__)
     "MS_WINDOWS",
 #endif
 
@@ -12239,7 +12264,7 @@ INITFUNC(void)
     PyObject *list;
     char **trace;
 
-#if defined(HAVE_SYMLINK) && defined(MS_WINDOWS)
+#if defined(HAVE_SYMLINK) && (defined(MS_WINDOWS) || defined(__REACTOS__))
     win32_can_symlink = enable_symlink();
 #endif
 

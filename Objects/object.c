@@ -198,7 +198,7 @@ _Py_NegativeRefcount(const char *fname, int lineno, PyObject *op)
 
     PyOS_snprintf(buf, sizeof(buf),
                   "%s:%i object at %p has negative ref count "
-                  "%" PY_FORMAT_SIZE_T "d",
+                  "%Id", //"%" PY_FORMAT_SIZE_T "d", Resolve macro PY_FORMAT_SIZE_T for ReactOS
                   fname, lineno, op, op->ob_refcnt);
     Py_FatalError(buf);
 }
@@ -1758,7 +1758,7 @@ _Py_PrintReferences(FILE *fp)
     PyObject *op;
     fprintf(fp, "Remaining objects:\n");
     for (op = refchain._ob_next; op != &refchain; op = op->_ob_next) {
-        fprintf(fp, "%p [%" PY_FORMAT_SIZE_T "d] ", op, op->ob_refcnt);
+        fprintf(fp, "%p [%Id] ", op, op->ob_refcnt); //fprintf(fp, "%p [%" PY_FORMAT_SIZE_T "d] ", op, op->ob_refcnt); //resolve macro PY_FORMAT_SIZE_T for ReactOS
         if (PyObject_Print(op, fp, 0) != 0)
             PyErr_Clear();
         putc('\n', fp);
@@ -1774,7 +1774,7 @@ _Py_PrintReferenceAddresses(FILE *fp)
     PyObject *op;
     fprintf(fp, "Remaining object addresses:\n");
     for (op = refchain._ob_next; op != &refchain; op = op->_ob_next)
-        fprintf(fp, "%p [%" PY_FORMAT_SIZE_T "d] %s\n", op,
+        fprintf(fp, "%p [%Id] %s\n", op, //fprintf(fp, "%p [%" PY_FORMAT_SIZE_T "d] %s\n", op, //resolve macro PY_FORMAT_SIZE_T for ReactOS
             op->ob_refcnt, Py_TYPE(op)->tp_name);
 }
 

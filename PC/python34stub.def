@@ -186,7 +186,7 @@ PyExc_KeyError
 PyExc_KeyboardInterrupt
 PyExc_LookupError
 PyExc_MemoryError
-PyExc_MemoryErrorInst
+;PyExc_MemoryErrorInst
 PyExc_NameError
 PyExc_NotImplementedError
 PyExc_OSError
@@ -318,7 +318,7 @@ PyMethodDescr_Type
 PyModule_AddIntConstant
 PyModule_AddObject
 PyModule_AddStringConstant
-PyModule_Create2
+;PyModule_Create2
 PyModule_GetDef
 PyModule_GetDict
 PyModule_GetFilename
@@ -327,7 +327,7 @@ PyModule_GetName
 PyModule_GetState
 PyModule_New
 PyModule_Type
-PyNullImporter_Type
+;PyNullImporter_Type
 PyNumber_Absolute
 PyNumber_Add
 PyNumber_And
@@ -470,7 +470,7 @@ PySlice_GetIndices
 PySlice_GetIndicesEx
 PySlice_New
 PySlice_Type
-PySortWrapper_Type
+;PySortWrapper_Type
 PyState_FindModule
 PyState_AddModule
 PyState_RemoveModule
@@ -564,7 +564,7 @@ PyUnicode_AsUTF32String
 PyUnicode_AsUTF8String
 PyUnicode_AsUnicodeEscapeString
 PyUnicode_AsWideChar
-PyUnicode_ClearFreelist
+;PyUnicode_ClearFreelist
 PyUnicode_Compare
 PyUnicode_Concat
 PyUnicode_Contains
@@ -605,7 +605,7 @@ PyUnicode_RSplit
 PyUnicode_Replace
 PyUnicode_Resize
 PyUnicode_RichCompare
-PyUnicode_SetDefaultEncoding
+;PyUnicode_SetDefaultEncoding
 PyUnicode_Split
 PyUnicode_Splitlines
 PyUnicode_Tailmatch

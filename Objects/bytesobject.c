@@ -145,7 +145,7 @@ PyBytes_FromString(const char *str)
 PyObject *
 PyBytes_FromFormatV(const char *format, va_list vargs)
 {
-    va_list count;
+    va_list count = NULL;
     Py_ssize_t n = 0;
     const char* f;
     char *s;
@@ -268,8 +268,10 @@ PyBytes_FromFormatV(const char *format, va_list vargs)
                 if (longflag)
                     sprintf(s, "%ld", va_arg(vargs, long));
                 else if (size_tflag)
-                    sprintf(s, "%" PY_FORMAT_SIZE_T "d",
-                        va_arg(vargs, Py_ssize_t));
+                    //sprintf(s, "%" PY_FORMAT_SIZE_T "d",
+                    //    va_arg(vargs, Py_ssize_t));
+                    sprintf(s, "%Id",
+                        va_arg(vargs, Py_ssize_t)); //Replace PY_FORMAT_SIZE_T macro by hands for ReactOS
                 else
                     sprintf(s, "%d", va_arg(vargs, int));
                 s += strlen(s);
@@ -279,7 +281,9 @@ PyBytes_FromFormatV(const char *format, va_list vargs)
                     sprintf(s, "%lu",
                         va_arg(vargs, unsigned long));
                 else if (size_tflag)
-                    sprintf(s, "%" PY_FORMAT_SIZE_T "u",
+                    //sprintf(s, "%" PY_FORMAT_SIZE_T "u",
+                    //    va_arg(vargs, size_t)); //Replace PY_FORMAT_SIZE_T macro by hands for ReactOS
+                    sprintf(s, "%Iu",
                         va_arg(vargs, size_t));
                 else
                     sprintf(s, "%u",
@@ -626,7 +630,7 @@ PyBytes_Repr(PyObject *obj, int smartquotes)
             *p++ = c;
     }
     *p++ = quote;
-    assert(_PyUnicode_CheckConsistency(v, 1));
+    //assert(_PyUnicode_CheckConsistency(v, 1)); disable for ReactOS
     return v;
 
   overflow:

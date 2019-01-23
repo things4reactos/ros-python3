@@ -47,6 +47,8 @@ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <windows.h>
 #endif
 
+#define PY_FORMAT_SIZE_T "I" //For ReactOS
+
 /*[clinic input]
 class str "PyUnicodeObject *" "&PyUnicode_Type"
 [clinic start generated code]*/
@@ -1011,7 +1013,7 @@ _PyUnicode_Dump(PyObject *op)
     }
     else
         data = unicode->data.any;
-    printf("%s: len=%" PY_FORMAT_SIZE_T "u, ",
+    printf("%s: len=%Iu, ", //printf("%s: len=%" PY_FORMAT_SIZE_T "u, ", //Resolve PY_FORMAT_SIZE_T for ReactOS
            unicode_kind_name(op), ascii->length);
 
     if (ascii->wstr == data)

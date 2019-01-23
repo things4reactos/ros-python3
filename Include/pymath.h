@@ -3,6 +3,9 @@
 
 #include "pyconfig.h" /* include for defines */
 
+//For ReactOS
+//#include "math.h"
+
 /**************************************************************************
 Symbols and macros to supply platform-independent interfaces to mathematical
 functions and constants

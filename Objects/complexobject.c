@@ -7,7 +7,7 @@
 
 #include "Python.h"
 #include "structmember.h"
-
+//#include "math.h"
 /* elementary operations on complex numbers */
 
 static Py_complex c_1 = {1., 0.};
@@ -176,6 +176,7 @@ c_abs(Py_complex z)
     double result;
 
     if (!Py_IS_FINITE(z.real) || !Py_IS_FINITE(z.imag)) {
+    
         /* C99 rules: if either the real or the imaginary part is an
            infinity, return infinity, even if the other part is a
            NaN. */

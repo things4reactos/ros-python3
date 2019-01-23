@@ -187,7 +187,7 @@ EXPORTS
   PyExc_KeyboardInterrupt=python34.PyExc_KeyboardInterrupt DATA
   PyExc_LookupError=python34.PyExc_LookupError DATA
   PyExc_MemoryError=python34.PyExc_MemoryError DATA
-  PyExc_MemoryErrorInst=python34.PyExc_MemoryErrorInst DATA
+  ;PyExc_MemoryErrorInst=python34.PyExc_MemoryErrorInst DATA
   PyExc_NameError=python34.PyExc_NameError DATA
   PyExc_NotImplementedError=python34.PyExc_NotImplementedError DATA
   PyExc_OSError=python34.PyExc_OSError DATA
@@ -319,7 +319,7 @@ EXPORTS
   PyModule_AddIntConstant=python34.PyModule_AddIntConstant
   PyModule_AddObject=python34.PyModule_AddObject
   PyModule_AddStringConstant=python34.PyModule_AddStringConstant
-  PyModule_Create2=python34.PyModule_Create2
+  ;PyModule_Create2=python34.PyModule_Create2
   PyModule_GetDef=python34.PyModule_GetDef
   PyModule_GetDict=python34.PyModule_GetDict
   PyModule_GetFilename=python34.PyModule_GetFilename
@@ -328,7 +328,7 @@ EXPORTS
   PyModule_GetState=python34.PyModule_GetState
   PyModule_New=python34.PyModule_New
   PyModule_Type=python34.PyModule_Type DATA
-  PyNullImporter_Type=python34.PyNullImporter_Type DATA
+  ;PyNullImporter_Type=python34.PyNullImporter_Type DATA
   PyNumber_Absolute=python34.PyNumber_Absolute
   PyNumber_Add=python34.PyNumber_Add
   PyNumber_And=python34.PyNumber_And
@@ -471,7 +471,7 @@ EXPORTS
   PySlice_GetIndicesEx=python34.PySlice_GetIndicesEx
   PySlice_New=python34.PySlice_New
   PySlice_Type=python34.PySlice_Type DATA
-  PySortWrapper_Type=python34.PySortWrapper_Type DATA
+  ;PySortWrapper_Type=python34.PySortWrapper_Type DATA
   PyState_FindModule=python34.PyState_FindModule
   PyState_AddModule=python34.PyState_AddModule
   PyState_RemoveModule=python34.PyState_RemoveModule
@@ -565,7 +565,7 @@ EXPORTS
   PyUnicode_AsUTF8String=python34.PyUnicode_AsUTF8String
   PyUnicode_AsUnicodeEscapeString=python34.PyUnicode_AsUnicodeEscapeString
   PyUnicode_AsWideChar=python34.PyUnicode_AsWideChar
-  PyUnicode_ClearFreelist=python34.PyUnicode_ClearFreelist
+  ;PyUnicode_ClearFreelist=python34.PyUnicode_ClearFreelist
   PyUnicode_Compare=python34.PyUnicode_Compare
   PyUnicode_Concat=python34.PyUnicode_Concat
   PyUnicode_Contains=python34.PyUnicode_Contains
@@ -606,7 +606,7 @@ EXPORTS
   PyUnicode_Replace=python34.PyUnicode_Replace
   PyUnicode_Resize=python34.PyUnicode_Resize
   PyUnicode_RichCompare=python34.PyUnicode_RichCompare
-  PyUnicode_SetDefaultEncoding=python34.PyUnicode_SetDefaultEncoding
+  ;PyUnicode_SetDefaultEncoding=python34.PyUnicode_SetDefaultEncoding
   PyUnicode_Split=python34.PyUnicode_Split
   PyUnicode_Splitlines=python34.PyUnicode_Splitlines
   PyUnicode_Tailmatch=python34.PyUnicode_Tailmatch

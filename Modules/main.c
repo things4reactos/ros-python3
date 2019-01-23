@@ -9,7 +9,7 @@
 #include <windows.h>
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
-#define PATH_MAX MAXPATHLEN
+//#define PATH_MAX MAXPATHLEN remove for ReactOS (already defined in sdk/include/crt/limits.h)
 #endif
 #endif
 

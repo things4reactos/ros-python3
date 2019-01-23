@@ -29,8 +29,9 @@ const char *_PyImport_DynLoadFiletab[] = {
 
 /* Case insensitive string compare, to avoid any dependencies on particular
    C RTL implementations */
-
-static int strcasecmp (char *string1, char *string2)
+//Removed for ReactOS. Modules/_decimal/libmpdec/vcccompat.h redifines it to _strnicmp and produce error.
+/*
+static int strcasecmp (const char *string1, const char *string2)
 {
     int first, second;
 
@@ -43,7 +44,7 @@ static int strcasecmp (char *string1, char *string2)
 
     return (first - second);
 }
-
+*/
 
 /* Function to return the name of the "python" DLL that the supplied module
    directly imports.  Looks through the list of imported modules and

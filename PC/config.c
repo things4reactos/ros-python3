@@ -48,7 +48,7 @@ extern PyObject* PyInit__struct(void);
 extern PyObject* PyInit__datetime(void);
 extern PyObject* PyInit__functools(void);
 extern PyObject* PyInit__json(void);
-extern PyObject* PyInit_zlib(void);
+//extern PyObject* PyInit_zlib(void);
 
 extern PyObject* PyInit__multibytecodec(void);
 extern PyObject* PyInit__codecs_cn(void);
@@ -61,7 +61,7 @@ extern PyObject* PyInit__winapi(void);
 extern PyObject* PyInit__lsprof(void);
 extern PyObject* PyInit__ast(void);
 extern PyObject* PyInit__io(void);
-extern PyObject* PyInit__pickle(void);
+//extern PyObject* PyInit__pickle(void);
 extern PyObject* PyInit_atexit(void);
 extern PyObject* _PyWarnings_Init(void);
 extern PyObject* PyInit__string(void);
@@ -129,7 +129,7 @@ struct _inittab _PyImport_Inittab[] = {
 
     {"xxsubtype", PyInit_xxsubtype},
     {"zipimport", PyInit_zipimport},
-    {"zlib", PyInit_zlib},
+//    {"zlib", PyInit_zlib},
 
     /* CJK codecs */
     {"_multibytecodec", PyInit__multibytecodec},
@@ -156,7 +156,7 @@ struct _inittab _PyImport_Inittab[] = {
     {"_string", PyInit__string},
 
     {"_io", PyInit__io},
-    {"_pickle", PyInit__pickle},
+//    {"_pickle", PyInit__pickle},
     {"atexit", PyInit_atexit},
     {"_stat", PyInit__stat},
     {"_opcode", PyInit__opcode},

@@ -1931,7 +1931,7 @@ _PyObject_DebugDumpAddress(const void *p)
     fprintf(stderr, " API '%c'\n", id);
 
     nbytes = read_size_t(q - 2*SST);
-    fprintf(stderr, "    %" PY_FORMAT_SIZE_T "u bytes originally "
+    fprintf(stderr, "    %I" "u bytes originally " //fprintf(stderr, "    %" PY_FORMAT_SIZE_T "u bytes originally " //Resolve PY_FORMAT_SIZE_T for ReactOS
                     "requested\n", nbytes);
 
     /* In case this is nuts, check the leading pad bytes first. */
@@ -1987,7 +1987,7 @@ _PyObject_DebugDumpAddress(const void *p)
     }
 
     serial = read_size_t(tail + SST);
-    fprintf(stderr, "    The block was made by call #%" PY_FORMAT_SIZE_T
+    fprintf(stderr, "    The block was made by call #%I" //fprintf(stderr, "    The block was made by call #%" PY_FORMAT_SIZE_T //Resolve PY_FORMAT_SIZE_T for ReactOS
                     "u to debug malloc/realloc.\n", serial);
 
     if (nbytes > 0) {
@@ -2059,7 +2059,7 @@ _PyDebugAllocatorStats(FILE *out,
     char buf1[128];
     char buf2[128];
     PyOS_snprintf(buf1, sizeof(buf1),
-                  "%d %ss * %" PY_FORMAT_SIZE_T "d bytes each",
+                  "%d %ss * %Id bytes each", //"%d %ss * %" PY_FORMAT_SIZE_T "d bytes each", //Resolve PY_FORMAT_SIZE_T for ReactOS
                   num_blocks, block_name, sizeof_block);
     PyOS_snprintf(buf2, sizeof(buf2),
                   "%48s ", buf1);
@@ -2138,12 +2138,14 @@ _PyObject_DebugMallocStats(FILE *out)
             poolp p = (poolp)base;
             const uint sz = p->szidx;
             uint freeblocks;
-
             if (p->ref.count == 0) {
+#ifdef Py_DEBUG
                 /* currently unused */
-                assert(pool_is_in_list(p, arenas[i].freepools));
+                assert(pool_is_in_list(p, arenas[i].freepools)); //added for ReactOS. it does not compile without Py_DEBUG defined.
+#endif
                 continue;
             }
+            
             ++numpools[sz];
             numblocks[sz] += p->ref.count;
             freeblocks = NUMBLOCKS(sz) - p->ref.count;
@@ -2171,9 +2173,9 @@ _PyObject_DebugMallocStats(FILE *out)
             continue;
         }
         fprintf(out, "%5u %6u "
-                        "%11" PY_FORMAT_SIZE_T "u "
-                        "%15" PY_FORMAT_SIZE_T "u "
-                        "%13" PY_FORMAT_SIZE_T "u\n",
+                        "%11Iu "
+                        "%15Iu "
+                        "%13Iu\n", //Resolve PY_FORMAT_SIZE_T for ReactOS
                 i, size, p, b, f);
         allocated_bytes += b * size;
         available_bytes += f * size;
@@ -2190,7 +2192,7 @@ _PyObject_DebugMallocStats(FILE *out)
     (void)printone(out, "# arenas allocated current", narenas);
 
     PyOS_snprintf(buf, sizeof(buf),
-        "%" PY_FORMAT_SIZE_T "u arenas * %d bytes/arena",
+        "%Iu arenas * %d bytes/arena", //"%" PY_FORMAT_SIZE_T "u arenas * %d bytes/arena", //Resolve PY_FORMAT_SIZE_T for ReactOS
         narenas, ARENA_SIZE);
     (void)printone(out, buf, narenas * ARENA_SIZE);
 

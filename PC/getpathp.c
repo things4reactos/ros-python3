@@ -311,7 +311,7 @@ getpythonregpath(HKEY keyBase, int skipcore)
     dataBuf = PyMem_RawMalloc((dataSize+1) * sizeof(WCHAR));
     if (dataBuf) {
         WCHAR *szCur = dataBuf;
-        DWORD reqdSize = dataSize;
+        //DWORD reqdSize = dataSize; //remover for ReactOS (unused)
         /* Copy our collected strings */
         for (index=0;index<numKeys;index++) {
             if (index > 0) {
@@ -693,11 +693,11 @@ calculate_path(void)
             p = q+1;
         }
     }
-    if (argv0_path) {
+    //if (argv0_path) { //removed for ReactOS (always true). but possible programmes's error hear.
         *buf++ = DELIM;
         wcscpy(buf, argv0_path);
         buf = wcschr(buf, L'\0');
-    }
+    //}
     *buf = L'\0';
     /* Now to pull one last hack/trick.  If sys.prefix is
        empty, then try and find it somewhere on the paths

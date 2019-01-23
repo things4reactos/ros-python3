@@ -13,6 +13,7 @@
 #include <stdint.h>
 #endif
 
+
 /**************************************************************************
 Symbols and macros to supply platform-independent interfaces to basic
 C language & library operations whose spellings vary across platforms.
@@ -52,6 +53,9 @@ Used in:  PY_LONG_LONG
  * NOTE: don't go nuts here!  Python has no use for *most* of the C9X
  * integral synonyms.  Only define the ones we actually need.
  */
+
+//ReactOS specific
+typedef long ssize_t;
 
 #ifdef HAVE_LONG_LONG
 #ifndef PY_LONG_LONG
@@ -324,8 +328,12 @@ typedef int Py_ssize_clean_t;
 #ifdef HAVE_IEEEFP_H
 #include <ieeefp.h>  /* needed for 'finite' declaration on some platforms */
 #endif
+    
+#undef extern //just hack
+//    extern double __cdecl _hypot(_In_ double x, _In_ double y);
 
-#include <math.h> /* Moved here from the math section, before extern "C" */
+#include <math.h> /* Moved here from the math section, before extern "C" */ //removed for ReactOS
+
 
 /********************************************
  * WRAPPER FOR <time.h> and/or <sys/time.h> *
@@ -348,10 +356,11 @@ typedef int Py_ssize_clean_t;
  ******************************/
 
 /* NB caller must include <sys/types.h> */
-
+/*
+ * On ReactOS we do not have it
 #ifdef HAVE_SYS_SELECT_H
 #include <sys/select.h>
-#endif /* !HAVE_SYS_SELECT_H */
+#endif */ // !HAVE_SYS_SELECT_H
 
 /*******************************
  * stat() and fstat() fiddling *

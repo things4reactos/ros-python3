@@ -210,6 +210,7 @@ pressed key was a special function key, this will return '\\000' or\n\
 '\\xe0'; the next call will return the keycode. The Control-C keypress\n\
 cannot be read with this function.");
 
+/*
 #ifdef _WCONIO_DEFINED
 static PyObject *
 msvcrt_getwch(PyObject *self, PyObject *args)
@@ -230,7 +231,7 @@ PyDoc_STRVAR(getwch_doc,
 \n\
 Wide char variant of getch(), returning a Unicode value.");
 #endif
-
+*/
 static PyObject *
 msvcrt_getche(PyObject *self, PyObject *args)
 {
@@ -253,6 +254,7 @@ PyDoc_STRVAR(getche_doc,
 Similar to getch(), but the keypress will be echoed if it represents\n\
 a printable character.");
 
+/*
 #ifdef _WCONIO_DEFINED
 static PyObject *
 msvcrt_getwche(PyObject *self, PyObject *args)
@@ -263,7 +265,8 @@ msvcrt_getwche(PyObject *self, PyObject *args)
         return NULL;
 
     Py_BEGIN_ALLOW_THREADS
-    ch = _getwche();
+    //ch = _getwche(); Replaced for ReactOS
+    ch = _gettche();
     Py_END_ALLOW_THREADS
     return PyUnicode_FromOrdinal(ch);
 }
@@ -273,6 +276,7 @@ PyDoc_STRVAR(getwche_doc,
 \n\
 Wide char variant of getche(), returning a Unicode value.");
 #endif
+*/
 
 static PyObject *
 msvcrt_putch(PyObject *self, PyObject *args)
@@ -301,7 +305,7 @@ msvcrt_putwch(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "C:putwch", &ch))
         return NULL;
 
-    _putwch(ch);
+    putch(ch); //Replacedd to putch for ReactOS
     Py_RETURN_NONE;
 
 }
@@ -342,7 +346,7 @@ msvcrt_ungetwch(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "C:ungetwch", &ch))
         return NULL;
 
-    if (_ungetwch(ch) == WEOF)
+    if (ungetch(ch) == WEOF) //Replaced to ungetch for ReactOS
         return PyErr_SetFromErrno(PyExc_IOError);
     Py_INCREF(Py_None);
     return Py_None;
@@ -442,8 +446,8 @@ static struct PyMethodDef msvcrt_functions[] = {
     {"set_error_mode",          msvcrt_seterrormode, METH_VARARGS},
 #endif
 #ifdef _WCONIO_DEFINED
-    {"getwch",                  msvcrt_getwch, METH_VARARGS, getwch_doc},
-    {"getwche",                 msvcrt_getwche, METH_VARARGS, getwche_doc},
+//    {"getwch",                  msvcrt_getwch, METH_VARARGS, getwch_doc},
+//    {"getwche",                 msvcrt_getwche, METH_VARARGS, getwche_doc},
     {"putwch",                  msvcrt_putwch, METH_VARARGS, putwch_doc},
     {"ungetwch",                msvcrt_ungetwch, METH_VARARGS, ungetwch_doc},
 #endif

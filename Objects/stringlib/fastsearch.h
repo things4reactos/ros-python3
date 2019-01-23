@@ -13,6 +13,8 @@
    it has actually checked for matches, but didn't find any.  callers
    beware! */
 
+#include "string.h"
+
 #define FAST_COUNT 0
 #define FAST_SEARCH 1
 #define FAST_RSEARCH 2
@@ -60,7 +62,7 @@ STRINGLIB(fastsearch_memchr_1char)(const STRINGLIB_CHAR* s, Py_ssize_t n,
     else if (mode == FAST_RSEARCH) {
         while (n > 0) {
             const STRINGLIB_CHAR *found;
-            void *candidate = memrchr((const void *) s, needle, n * sizeof(STRINGLIB_CHAR));
+            void *candidate = (void *) memrchr((const void *) s, needle, n * sizeof(STRINGLIB_CHAR));
             if (candidate == NULL)
                 return -1;
             found = (const STRINGLIB_CHAR *) _Py_ALIGN_DOWN(candidate, sizeof(STRINGLIB_CHAR));

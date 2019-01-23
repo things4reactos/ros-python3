@@ -46,9 +46,9 @@ WIN32 is still required for the locale module.
    would be ISO C conforming). Neither renaming is feasible, so
    we just silence the warnings. */
 
-#ifndef _CRT_SECURE_NO_DEPRECATE
-#define _CRT_SECURE_NO_DEPRECATE 1
-#endif
+//#ifndef _CRT_SECURE_NO_DEPRECATE
+//#define _CRT_SECURE_NO_DEPRECATE 1 //remove for ReactOS because defined in sdk/include/crt/_mingw.h
+//#endif
 #ifndef _CRT_NONSTDC_NO_DEPRECATE
 #define _CRT_NONSTDC_NO_DEPRECATE 1
 #endif
@@ -269,7 +269,8 @@ typedef int pid_t;
 #endif
 
 #define COMPILER "[gcc]"
-#define hypot _hypot
+//Remove for ReactOS
+//#define hypot _hypot
 #define PY_LONG_LONG long long
 #define PY_LLONG_MIN LLONG_MIN
 #define PY_LLONG_MAX LLONG_MAX
@@ -434,7 +435,7 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 /* Fairly standard from here! */
 
 /* Define to 1 if you have the `copysign' function. */
-#define HAVE_COPYSIGN 1
+//#define HAVE_COPYSIGN 0 //undef for ReactOS
 
 /* Define to 1 if you have the `round' function. */
 #if _MSC_VER >= 1800
@@ -442,10 +443,10 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 #endif
 
 /* Define to 1 if you have the `isinf' macro. */
-#define HAVE_DECL_ISINF 1
+//#define HAVE_DECL_ISINF 0 //undef for ReactOS
 
 /* Define to 1 if you have the `isnan' function. */
-#define HAVE_DECL_ISNAN 1
+//#define HAVE_DECL_ISNAN 0 //undef for ReactOS
 
 /* Define if on AIX 3.
    System headers sometimes define this.
@@ -453,6 +454,10 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 #ifndef _ALL_SOURCE
 /* #undef _ALL_SOURCE */
 #endif
+
+//#ifdef __REACTOS__
+//#define    HAVE_OPENDIR 1
+//#endif
 
 /* Define to empty if the keyword does not work.  */
 /* #define const  */
@@ -476,6 +481,8 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 
 /* Define to `int' if <sys/types.h> doesn't define.  */
 /* #undef gid_t */
+//For ReactOS
+#define gid_t int
 
 /* Define if your struct tm has tm_zone.  */
 /* #undef HAVE_TM_ZONE */
@@ -486,6 +493,8 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 
 /* Define to `int' if <sys/types.h> doesn't define.  */
 /* #undef mode_t */
+//For ReactOS
+#define mode_t int
 
 /* Define if you don't have dirent.h, but have ndir.h.  */
 /* #undef NDIR */
@@ -526,6 +535,8 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 
 /* Define to `int' if <sys/types.h> doesn't define.  */
 /* #undef uid_t */
+//For ReactOS
+#define uid_t int
 
 /* Define if the closedir function returns void instead of int.  */
 /* #undef VOID_CLOSEDIR */

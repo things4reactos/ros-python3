@@ -39,7 +39,7 @@ adddfa(grammar *g, int type, const char *name)
         Py_FatalError("no mem to resize dfa in adddfa");
     d = &g->g_dfa[g->g_ndfas++];
     d->d_type = type;
-    d->d_name = strdup(name);
+    d->d_name = _strdup(name);
     d->d_nstates = 0;
     d->d_state = NULL;
     d->d_initial = -1;
@@ -101,7 +101,7 @@ addlabel(labellist *ll, int type, const char *str)
         Py_FatalError("no mem to resize labellist in addlabel");
     lb = &ll->ll_label[ll->ll_nlabels++];
     lb->lb_type = type;
-    lb->lb_str = strdup(str);
+    lb->lb_str = _strdup(str);
     if (Py_DebugFlag)
         printf("Label @ %8p, %d: %s\n", ll, ll->ll_nlabels,
                PyGrammar_LabelRepr(lb));

@@ -16,6 +16,15 @@
 #include "structmember.h"
 #include "windows.h"
 
+#if defined(__REACTOS__)
+//copyed from xdk/wdm.h
+#define REG_LEGAL_CHANGE_FILTER                 \
+                (REG_NOTIFY_CHANGE_NAME          |\
+                 REG_NOTIFY_CHANGE_ATTRIBUTES    |\
+                 REG_NOTIFY_CHANGE_LAST_SET      |\
+                 REG_NOTIFY_CHANGE_SECURITY)
+#endif
+
 static BOOL PyHKEY_AsHKEY(PyObject *ob, HKEY *pRes, BOOL bNoneOK);
 static PyObject *PyHKEY_FromHKEY(HKEY h);
 static BOOL PyHKEY_Close(PyObject *obHandle);

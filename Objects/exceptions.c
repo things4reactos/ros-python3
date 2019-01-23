@@ -711,7 +711,7 @@ ComplexExtendsException(PyExc_Exception, ImportError,
  */
 
 #ifdef MS_WINDOWS
-#include "errmap.h"
+#include "PC/errmap.h" //For ReactOS.
 #endif
 
 /* Where a function has a single filename, such as open() or some
